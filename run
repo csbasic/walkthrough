@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+
+TF_ENV=$1 # development, staging, production, etc...
+TF_STATE=$2 # network, data, compute 
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+# Always run from the location of this script
+
+cd $DIR
+
+if [ $# -gt 0 ]; then
+
+   if [ ! -d "$TF_ENV/$TF_STATE" ]; then
+      >&2 echo "Directory $DIR/$TF_ENV/$TF_STATE" does not exist
+      exit 1
+   fi
+
+   if [ "$3" == "init" ]; then
+   # If target is init - get bucket name and key, then initialize terraform
+      terraform -chdir=./$TF_ENV/$TF_STATE init \
+      -backend-config="bucket=walkthrough-backups" \
+      -backend-config="key=$TF_ENV/$TF_STATE.tfstate"
+   else
+   # if target is not init - run other targets (plan, apply, destroy)
+      terraform   -chdir=./$TF_ENV/$TF_STATE $3 $4 $5 $6 $7
+   fi
+fi
+
+# Head back to original location to avoid surprises
+
+cd -
