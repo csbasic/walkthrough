@@ -24,7 +24,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y unzip
 
       - name: Use Runner Password
-        run: echo "Password is $RUNNER_PASSWORD"
+        run: echo "Password is $PASSWORD"
 
       - name: Your unzip step
         run: unzip file.zip
