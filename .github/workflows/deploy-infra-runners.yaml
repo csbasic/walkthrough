@@ -4,8 +4,8 @@ on:
   pull_request:
     branches:
       - dev
-      - stage
-      - main
+      # - stage
+      # - main
 
 jobs:
   test-project:
