@@ -10,6 +10,12 @@ on:
 jobs:
   test-project:
     runs-on: self-hosted
+
+    env:
+      PASSWORD: ${{ secrets.MY_SECRET_PASSWORD }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
