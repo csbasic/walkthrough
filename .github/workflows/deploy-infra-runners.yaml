@@ -67,7 +67,7 @@ jobs:
         #     echo "Setting up infrastructure for development - network state..."
 
       - name: Setup Terraform Infrastructure (Development Only)
-        if: env.ENV == 'development'
+        if: env.ENV == 'dev'
         run: |
           echo "Setting up infrastructure for development - network state..."
           cd /home/ubuntu/actions-runner/marketup/marketup-ops/marketup-ops/terraform
@@ -82,11 +82,11 @@ jobs:
         # ./run dev compute apply -var-file=../dev.tfvars -auto-approve tfplan
 
         # - name: Destroy Terraform Infrastructure (Development Only)
-        #   if: env.ENV == 'development'
+        #   if: env.ENV == 'dev'
         #   run: |
         #     echo "Destroying infrastructure for development - network state..."
         #     cd /home/ubuntu/actions-runner/marketup/marketup-ops/marketup-ops/terraform
         #     ./run dev network init -var-file=../dev.tfvars
         #     ./run dev network destroy -var-file=../dev.tfvars -auto-approve
         env:
-          ENV: development
+          ENV: dev
