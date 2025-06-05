@@ -9,7 +9,7 @@ on:
 
 jobs:
   test-project:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -24,56 +24,57 @@ jobs:
 
       - name: Debug Base Branch
         run: |
-          echo "GITHUB_BASE_REF: $GITHUB_BASE_REF"
-          echo "Pull Request Event: $EVENT_DATA"
-        env:
-          EVENT_DATA: ${{ toJson(github.event) }}
+          ls -la
+        #     echo "GITHUB_BASE_REF: $GITHUB_BASE_REF"
+        #     echo "Pull Request Event: $EVENT_DATA"
+        #   env:
+        #     EVENT_DATA: ${{ toJson(github.event) }}
 
-      - name: Set Environment Based on Base Branch
-        run: |
-          if [[ -z "$GITHUB_BASE_REF" ]]; then
-            echo "GITHUB_BASE_REF is empty. Make sure this workflow is triggered by a pull request."
-            exit 1
-          fi
+        # - name: Set Environment Based on Base Branch
+        #   run: |
+        #     if [[ -z "$GITHUB_BASE_REF" ]]; then
+        #       echo "GITHUB_BASE_REF is empty. Make sure this workflow is triggered by a pull request."
+        #       exit 1
+        #     fi
 
-          echo "Pull Request Base Branch: $GITHUB_BASE_REF"
-          if [[ "$GITHUB_BASE_REF" == "dev" ]]; then
-            echo "This PR targets the 'dev' branch."
-            echo "ENV=development" >> $GITHUB_ENV
-          elif [[ "$GITHUB_BASE_REF" == "state" ]]; then
-            echo "This PR targets the 'stage' branch."
-            echo "ENV=stage" >> $GITHUB_ENV
-          elif [[ "$GITHUB_BASE_REF" == "main" ]]; then
-            echo "This PR targets the 'main' branch."
-            echo "ENV=production" >> $GITHUB_ENV
-          else
-            echo "This PR targets an unsupported branch."
-            exit 1
-          fi
+        #     echo "Pull Request Base Branch: $GITHUB_BASE_REF"
+        #     if [[ "$GITHUB_BASE_REF" == "dev" ]]; then
+        #       echo "This PR targets the 'dev' branch."
+        #       echo "ENV=development" >> $GITHUB_ENV
+        #     elif [[ "$GITHUB_BASE_REF" == "state" ]]; then
+        #       echo "This PR targets the 'stage' branch."
+        #       echo "ENV=stage" >> $GITHUB_ENV
+        #     elif [[ "$GITHUB_BASE_REF" == "main" ]]; then
+        #       echo "This PR targets the 'main' branch."
+        #       echo "ENV=production" >> $GITHUB_ENV
+        #     else
+        #       echo "This PR targets an unsupported branch."
+        #       exit 1
+        #     fi
 
-      - name: Run Environment-Specific Steps
-        run: |
-          if [[ "${ENV}" == "dev" ]]; then
-            echo "Running development tasks..."
-          elif [[ "${ENV}" == "staging" ]]; then
-            echo "Running stage tasks..."
-          elif [[ "${ENV}" == "prod" ]]; then
-            echo "Running production tasks..."
-          fi
+        # - name: Run Environment-Specific Steps
+        #   run: |
+        #     if [[ "${ENV}" == "dev" ]]; then
+        #       echo "Running development tasks..."
+        #     elif [[ "${ENV}" == "staging" ]]; then
+        #       echo "Running stage tasks..."
+        #     elif [[ "${ENV}" == "prod" ]]; then
+        #       echo "Running production tasks..."
+        #     fi
+
+        #   # - name: Setup Terraform Infrastructure (Development Only)
+        #   #   if: env.ENV == 'development'
+        #   #   run: |
+        #   #     echo "Setting up infrastructure for development - network state..."
 
         # - name: Setup Terraform Infrastructure (Development Only)
-        #   if: env.ENV == 'development'
+        #   if: env.ENV == 'dev'
         #   run: |
         #     echo "Setting up infrastructure for development - network state..."
-
-      - name: Setup Terraform Infrastructure (Development Only)
-        if: env.ENV == 'dev'
-        run: |
-          echo "Setting up infrastructure for development - network state..."
-          cd /home/ubuntu/actions-runner/marketup/marketup-ops/marketup-ops/terraform
-          ./run dev network init -var-file=../dev.tfvars
-          ./run dev network plan -var-file=../dev.tfvars -out=../tfplan
-          ./run dev network apply -auto-approve ../tfplan
+        #     cd /home/ubuntu/actions-runner/walkthrough/marketup-ops/marketup-ops/terraform
+        #     ./run dev network init -var-file=../dev.tfvars
+        #     ./run dev network plan -var-file=../dev.tfvars -out=../tfplan
+        #     ./run dev network apply -auto-approve ../tfplan
 
         # echo "Setting up infrastructure for development - compute state..."
         # cd /home/ubuntu/actions-runner/marketup/marketup-ops/marketup-ops/terraform
