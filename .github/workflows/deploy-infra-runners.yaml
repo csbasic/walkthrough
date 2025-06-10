@@ -27,8 +27,24 @@ jobs:
       #   run: |
       #     echo "$USER_PASSWORD" | sudo -S apt-get update
       #     sudo apt-get update && sudo apt-get install -y unzip && sudo unzip file.zip
-      - name: Install Terraform
+
+      - name: Check if Terraform is installed
+        id: check_terraform
+        run: |
+          if command -v terraform >/dev/null 2>&1; then
+            echo "Terraform already installed"
+            echo "installed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Terraform not installed"
+            echo "installed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install Terraform if needed
+        if: steps.check_terraform.outputs.installed == 'false'
         uses: hashicorp/setup-terraform@v3
+
+      - name: Check Terraform version
+        run: terraform version
 
         # env:
         # TF_VAR_my_secret: ${{ secrets.AWS_ACCOUNT_ID }}
