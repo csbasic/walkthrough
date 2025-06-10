@@ -42,13 +42,13 @@ jobs:
           echo "Pull Request Base Branch: $GITHUB_BASE_REF"
           if [[ "$GITHUB_BASE_REF" == "dev" ]]; then
             echo "This PR targets the 'dev' branch."
-            echo "ENV=development" >> $GITHUB_ENV
-          elif [[ "$GITHUB_BASE_REF" == "state" ]]; then
+            echo "ENV=dev" >> $GITHUB_ENV
+          elif [[ "$GITHUB_BASE_REF" == "stage" ]]; then
             echo "This PR targets the 'stage' branch."
             echo "ENV=stage" >> $GITHUB_ENV
           elif [[ "$GITHUB_BASE_REF" == "main" ]]; then
             echo "This PR targets the 'main' branch."
-            echo "ENV=production" >> $GITHUB_ENV
+            echo "ENV=prod" >> $GITHUB_ENV
           else
             echo "This PR targets an unsupported branch."
             exit 1
@@ -58,7 +58,7 @@ jobs:
         run: |
           if [[ "${ENV}" == "dev" ]]; then
             echo "Running development tasks..."
-          elif [[ "${ENV}" == "staging" ]]; then
+          elif [[ "${ENV}" == "stage" ]]; then
             echo "Running stage tasks..."
           elif [[ "${ENV}" == "prod" ]]; then
             echo "Running production tasks..."
