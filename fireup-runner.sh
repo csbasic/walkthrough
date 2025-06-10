@@ -2,8 +2,8 @@
 
 docker run -d \
    -e REPO_URL="https://github.com/csbasic/walkthrough" \
-   -e RUNNER_TOKEN="AS7JR5IN4HM53FFGSPRST4DIIQVDK" \
+   -e RUNNER_TOKEN="AS7JR5JUNJI2YY2YXQUH72LIJBU72" \
    -v /your/local/path:/home/runner \
-   --name github-runner \
+   --name actions-runner \
    --restart always \
    runner
