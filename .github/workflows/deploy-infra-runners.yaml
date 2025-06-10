@@ -13,88 +13,76 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: self-hosted
 
+    strategy:
+      matrix:
+        env: [dev, staging, prod]
+        target: [network, compute, data] # Add other targets here like "app", "db" if needed
+
+    defaults:
+      run:
+        working-directory: walkthrough
+
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      ENV: ${{ matrix.env }}
+      TARGET: ${{ matrix.target }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      - name: Configure Terraform Plugin Cache
+      - name: Configure Terraform Plugin Cache Directory
         run: |
           mkdir -p ~/.terraform.d/plugin-cache
           echo 'plugin_cache_dir = "$HOME/.terraform.d/plugin-cache"' > ~/.terraform.d/terraform.rc
 
-      - name: Cache Terraform Plugin Directory
+      - name: Cache Terraform Provider Plugins
         uses: actions/cache@v3
         with:
           path: ~/.terraform.d/plugin-cache
-          key: terraform-plugin-${{ runner.os }}-${{ hashFiles('**/*.tf') }}
+          key: terraform-plugin-${{ matrix.env }}-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles('**/*.tf') }}
           restore-keys: |
-            terraform-plugin-${{ runner.os }}-
+            terraform-plugin-${{ matrix.env }}-${{ matrix.target }}-${{ runner.os }}-
 
-      - name: Cache Terraform Working Directory
+      - name: Cache Terraform .terraform Directory
         uses: actions/cache@v3
         with:
           path: ./walkthrough/.terraform
-          key: terraform-dir-${{ runner.os }}-${{ hashFiles('walkthrough/**/*.tf') }}
+          key: terraform-dir-${{ matrix.env }}-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles('walkthrough/**/*.tf') }}
           restore-keys: |
-            terraform-dir-${{ runner.os }}-
+            terraform-dir-${{ matrix.env }}-${{ matrix.target }}-${{ runner.os }}-
 
-      - name: Debug Base Branch
+      - name: Echo Current Environment and Target
+        run: echo "Deploying $TARGET to $ENV"
+
+      - name: Verify Directory Exists
         run: |
-
-          echo "GITHUB_BASE_REF: $GITHUB_BASE_REF"
-          echo "Pull Request Event: $EVENT_DATA"
-        env:
-          EVENT_DATA: ${{ toJson(github.event) }}
-
-      - name: Set Environment Based on Base Branch
-        run: |
-          BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
-          echo "Base branch is: $BASE_BRANCH"
-
-          if [[ "$BASE_BRANCH" == "dev" ]]; then
-            echo "ENV=dev" >> $GITHUB_ENV
-          elif [[ "$BASE_BRANCH" == "stage" ]]; then
-            echo "ENV=stage" >> $GITHUB_ENV
-          elif [[ "$BASE_BRANCH" == "main" ]]; then
-            echo "ENV=prod" >> $GITHUB_ENV
-          else
-            echo "Unsupported base branch: $BASE_BRANCH"
+          DIR_PATH="./${ENV}/${TARGET}"
+          echo "Checking for directory: $DIR_PATH"
+          if [ ! -d "$DIR_PATH" ]; then
+            echo "Error: Directory $DIR_PATH does not exist."
             exit 1
           fi
-        env:
-          ENV: ${{ env.ENV }}
-
-      # Check Terraform Cache On ENV Base
 
       - name: Setup Terraform Infrastructure Based on ENV
         run: |
+          echo "Running Terraform for $ENV -> $TARGET..."
           case "${ENV}" in
             dev)
-              echo "Setting up infrastructure for development..."
-              cd /home/github/actions-runner/_work/walkthrough/walkthrough
-              ./run dev network init -var-file=../dev.tfvars
-              ./run dev network plan -var-file=../dev.tfvars -out=../tfplan
+              ./run dev ${TARGET} init -var-file=../dev.tfvars
+              ./run dev ${TARGET} plan -var-file=../dev.tfvars -out=../tfplan
               ;;
-            stage)
-              echo "Setting up infrastructure for staging..."
-              cd /home/github/actions-runner/_work/walkthrough/walkthrough
-              ./run stage network init -var-file=../stage.tfvars
-              ./run stage network plan -var-file=../stage.tfvars -out=../tfplan
+            staging)
+              ./run stage ${TARGET} init -var-file=../stage.tfvars
+              ./run stage ${TARGET} plan -var-file=../stage.tfvars -out=../tfplan
               ;;
             prod)
-              echo "Setting up infrastructure for production..."
-              cd /home/github/actions-runner/_work/walkthrough/walkthrough
-              ./run pro network init -var-file=../pro.tfvars
-              ./run pro network plan -var-file=../pro.tfvars -out=../tfplan
+              ./run pro ${TARGET} init -var-file=../pro.tfvars
+              ./run pro ${TARGET} plan -var-file=../pro.tfvars -out=../tfplan
               ;;
             *)
-              echo "Unknown ENV: '${ENV}'"
+              echo "Unknown ENV: $ENV"
               exit 1
               ;;
           esac
-        env:
-          ENV: ${{ env.ENV }}
