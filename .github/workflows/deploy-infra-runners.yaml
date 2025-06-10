@@ -21,6 +21,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Check Terraform version
+        run: terraform version
+
       - name: Debug Base Branch
         run: |
 
