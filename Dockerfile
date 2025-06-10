@@ -19,10 +19,15 @@ RUN curl -o actions-runner.tar.gz -L https://github.com/actions/runner/releases/
 
 # Install Terraform
 ARG TERRAFORM_VERSION="1.12.1"
-RUN curl -LO "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" \
-   && unzip "terraform_${TERRAFORM_VERSION}_linux_amd64.zip" \
-   && mv terraform /usr/local/bin/ \
-   && rm "terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+
+RUN set -eux && \
+   curl -LO "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" && \
+   unzip "terraform_${TERRAFORM_VERSION}_linux_amd64.zip" && \
+   mv terraform /usr/local/bin/terraform && \
+   chmod +x /usr/local/bin/terraform && \
+   terraform -version && \
+   rm "terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+
 
 # Install Node.js (LTS version)
 ARG NODE_VERSION="22.16.0"

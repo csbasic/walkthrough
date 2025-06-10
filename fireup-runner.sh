@@ -6,4 +6,4 @@ docker run -d \
    -v /your/local/path:/home/runner \
    --name actions-runner \
    --restart always \
-   runner
+   runner-image
