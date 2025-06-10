@@ -2,93 +2,89 @@ name: Terraform Deploy
 
 on:
   pull_request:
+    types: [closed]
     branches:
       - dev
       - stage
       - main
 
 jobs:
-  test-project:
-    runs-on: ubuntu-latest
+  deploy:
+    if: github.event.pull_request.merged == true
+    runs-on: self-hosted
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Install Terraform
-        uses: hashicorp/setup-terraform@v2
-
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
+      - name: Check Terraform version
+        run: terraform version
 
       - name: Debug Base Branch
         run: |
+
           echo "GITHUB_BASE_REF: $GITHUB_BASE_REF"
+          echo "Pull Request Event: $EVENT_DATA"
+        env:
+          EVENT_DATA: ${{ toJson(github.event) }}
 
-        # echo "GITHUB_BASE_REF: $GITHUB_BASE_REF"
-        # echo "Pull Request Event: $EVENT_DATA"
-        # env:
-        # EVENT_DATA: ${{ toJson(github.event) }}
+      - name: Set Environment Based on Base Branch
+        run: |
+          if [[ -z "$GITHUB_BASE_REF" ]]; then
+            echo "GITHUB_BASE_REF is empty. Make sure this workflow is triggered by a pull request."
+            exit 1
+          fi
 
-        # - name: Set Environment Based on Base Branch
-        #   run: |
-        #     if [[ -z "$GITHUB_BASE_REF" ]]; then
-        #       echo "GITHUB_BASE_REF is empty. Make sure this workflow is triggered by a pull request."
-        #       exit 1
-        #     fi
+          echo "Pull Request Base Branch: $GITHUB_BASE_REF"
+          if [[ "$GITHUB_BASE_REF" == "dev" ]]; then
+            echo "This PR targets the 'dev' branch."
+            echo "ENV=development" >> $GITHUB_ENV
+          elif [[ "$GITHUB_BASE_REF" == "state" ]]; then
+            echo "This PR targets the 'stage' branch."
+            echo "ENV=stage" >> $GITHUB_ENV
+          elif [[ "$GITHUB_BASE_REF" == "main" ]]; then
+            echo "This PR targets the 'main' branch."
+            echo "ENV=production" >> $GITHUB_ENV
+          else
+            echo "This PR targets an unsupported branch."
+            exit 1
+          fi
 
-        #     echo "Pull Request Base Branch: $GITHUB_BASE_REF"
-        #     if [[ "$GITHUB_BASE_REF" == "develop" ]]; then
-        #       echo "This PR targets the 'develop' branch."
-        #       echo "ENV=development" >> $GITHUB_ENV
-        #     elif [[ "$GITHUB_BASE_REF" == "staging" ]]; then
-        #       echo "This PR targets the 'staging' branch."
-        #       echo "ENV=staging" >> $GITHUB_ENV
-        #     elif [[ "$GITHUB_BASE_REF" == "main" ]]; then
-        #       echo "This PR targets the 'main' branch."
-        #       echo "ENV=production" >> $GITHUB_ENV
-        #     else
-        #       echo "This PR targets an unsupported branch."
-        #       exit 1
-        #     fi
+      - name: Run Environment-Specific Steps
+        run: |
+          if [[ "${ENV}" == "dev" ]]; then
+            echo "Running development tasks..."
+          elif [[ "${ENV}" == "staging" ]]; then
+            echo "Running stage tasks..."
+          elif [[ "${ENV}" == "prod" ]]; then
+            echo "Running production tasks..."
+          fi
 
-        # - name: Run Environment-Specific Steps
-        #   run: |
-        #     if [[ "${ENV}" == "development" ]]; then
-        #       echo "Running development tasks..."
-        #     elif [[ "${ENV}" == "staging" ]]; then
-        #       echo "Running staging tasks..."
-        #     elif [[ "${ENV}" == "production" ]]; then
-        #       echo "Running production tasks..."
-        #     fi
+      - name: Setup Terraform Infrastructure (Development Only)
+        if: env.ENV == 'dev'
+        run: |
+          echo "Setting up infrastructure for development - network state..."
+          cd /home/github/actions-runner/_work/walkthrough/walkthrough
+          ./run dev network init -var-file=../dev.tfvars
+          ./run dev network plan -var-file=../dev.tfvars -out=../tfplan
 
-        # - name: Setup Terraform Infrastructure (Development Only)
-        #   if: env.ENV == 'development'
-        #   run: |
-        #     echo "Setting up infrastructure for development - network state..."
-
-        # - name: Setup Terraform Infrastructure (Development Only)
-        #   if: env.ENV == 'development'
-        #   run: |
-        #     echo "Setting up infrastructure for development - network state..."
-        #     cd /home/ubuntu/actions-runner/marketup/marketup-ops/marketup-ops/terraform
-        #     ./run dev network init -var-file=../dev.tfvars
-        #     ./run dev network plan -var-file=../dev.tfvars -out=tfplan
-        #     ./run dev network apply -var-file=../dev.tfvars -auto-approve tfplan
-
-        #     echo "Setting up infrastructure for development - compute state..."
-        #     cd /home/ubuntu/actions-runner/marketup/marketup-ops/marketup-ops/terraform
-        #     ./run dev compute init -var-file=../dev.tfvars
-        #     ./run dev compute plan -var-file=../dev.tfvars -out=tfplan
-        #     ./run dev compute apply -var-file=../dev.tfvars -auto-approve tfplan
+        # ./run dev network apply -auto-approve ../tfplan
+        # echo "Setting up infrastructure for development - compute state..."
+        # cd /home/ubuntu/actions-runner/marketup/marketup-ops/marketup-ops/terraform
+        # ./run dev compute init -var-file=../dev.tfvars
+        # ./run dev compute plan -var-file=../dev.tfvars -out=tfplan
+        # ./run dev compute apply -var-file=../dev.tfvars -auto-approve tfplan
 
         # - name: Destroy Terraform Infrastructure (Development Only)
-        #   if: env.ENV == 'development'
+        #   if: env.ENV == 'dev'
         #   run: |
         #     echo "Destroying infrastructure for development - network state..."
         #     cd /home/ubuntu/actions-runner/marketup/marketup-ops/marketup-ops/terraform
         #     ./run dev network init -var-file=../dev.tfvars
         #     ./run dev network destroy -var-file=../dev.tfvars -auto-approve
         env:
-          ENV: development
+          ENV: dev

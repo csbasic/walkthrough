@@ -12,6 +12,6 @@ terraform {
 }
 
 provider "aws" {
-  region  = var.aws-region
-  profile = "stellatech" # This is the profile name in the ~/.aws/credentials file
+  region = var.aws-region
+  # profile = "stellatech" # This is the profile name in the ~/.aws/credentials file
 }
