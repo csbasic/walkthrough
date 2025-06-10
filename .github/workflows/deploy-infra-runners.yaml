@@ -2,13 +2,15 @@ name: Terraform Deploy
 
 on:
   pull_request:
+    types: [closed]
     branches:
       - dev
       - stage
       - main
 
 jobs:
-  test-project:
+  deploy:
+    if: github.event.pull_request.merged == true
     runs-on: self-hosted
 
     env:
@@ -28,6 +30,15 @@ jobs:
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
+
+      - name: Access AWS
+        run: |
+          echo "AWS Account ID" ${{ secret.AWS_ACCOUNT_ID }}
+          echo "AWS Account ID" ${{ secret.AWS_ACCESS_KEY }}
+          echo "AWS Account ID" ${{ secret.AWS_SECRET_KEY }}
+
+        env:
+        TF_VAR_my_secret: ${{ secrets.AWS_ACCOUNT_ID }}
 
       - name: Install Node.js
         uses: actions/setup-node@v3
