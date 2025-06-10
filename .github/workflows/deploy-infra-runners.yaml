@@ -14,6 +14,7 @@ jobs:
     runs-on: self-hosted
 
     env:
+      AWS_ACCOUNT_ID: ${{ secret.AWS_ACCOUNT_ID }}
       AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
 
@@ -30,12 +31,6 @@ jobs:
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
-
-      - name: Access AWS
-        run: |
-          echo "AWS Account ID" ${{ secret.AWS_ACCOUNT_ID }}
-          echo "AWS Account ID" ${{ secret.AWS_ACCESS_KEY }}
-          echo "AWS Account ID" ${{ secret.AWS_SECRET_KEY }}
 
         env:
         TF_VAR_my_secret: ${{ secrets.AWS_ACCOUNT_ID }}
