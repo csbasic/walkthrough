@@ -18,87 +18,78 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
 
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Check Terraform version
-        run: terraform version
+      - name: Configure Terraform Plugin Cache
+        run: |
+          mkdir -p ~/.terraform.d/plugin-cache
+          echo 'plugin_cache_dir = "$HOME/.terraform.d/plugin-cache"' > ~/.terraform.d/terraform.rc
+
+      - name: Cache Terraform Plugin Directory
+        uses: actions/cache@v3
+        with:
+          path: ~/.terraform.d/plugin-cache
+          key: terraform-plugin-${{ runner.os }}-${{ hashFiles('**/*.tf') }}
+          restore-keys: |
+            terraform-plugin-${{ runner.os }}-
+
+      - name: Cache Terraform Working Directory
+        uses: actions/cache@v3
+        with:
+          path: ./walkthrough/.terraform
+          key: terraform-dir-${{ runner.os }}-${{ hashFiles('walkthrough/**/*.tf') }}
+          restore-keys: |
+            terraform-dir-${{ runner.os }}-
 
       - name: Debug Base Branch
         run: |
-
           echo "GITHUB_BASE_REF: $GITHUB_BASE_REF"
           echo "Pull Request Event: $EVENT_DATA"
         env:
           EVENT_DATA: ${{ toJson(github.event) }}
 
-      - name: Set Environment Based on Base Branch
+      - name: Set Environment Variable from Base Branch
         run: |
-          BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
-          echo "Base branch is: $BASE_BRANCH"
+          if [[ -z "$GITHUB_BASE_REF" ]]; then
+            echo "GITHUB_BASE_REF is empty. Make sure this workflow is triggered by a pull request."
+            exit 1
+          fi
 
-          if [[ "$BASE_BRANCH" == "dev" ]]; then
+          if [[ "$GITHUB_BASE_REF" == "dev" ]]; then
             echo "ENV=dev" >> $GITHUB_ENV
-          elif [[ "$BASE_BRANCH" == "stage" ]]; then
+          elif [[ "$GITHUB_BASE_REF" == "stage" ]]; then
             echo "ENV=stage" >> $GITHUB_ENV
-          elif [[ "$BASE_BRANCH" == "main" ]]; then
+          elif [[ "$GITHUB_BASE_REF" == "main" ]]; then
             echo "ENV=prod" >> $GITHUB_ENV
           else
-            echo "Unsupported base branch: $BASE_BRANCH"
+            echo "Unsupported base branch: $GITHUB_BASE_REF"
             exit 1
           fi
 
-      - name: Run Environment-Specific Steps
-        run: |
-          if [[ "${ENV}" == "dev" ]]; then
-            echo "Running development tasks..."
-          elif [[ "${ENV}" == "stage" ]]; then
-            echo "Running staging tasks..."
-          elif [[ "${ENV}" == "prod" ]]; then
-            echo "Running production tasks..."
-          else
-            echo "Unknown ENV: '${ENV}'"
-            exit 1
-          fi
-        env:
-          ENV: ${{ env.ENV }}
-
-      # Check Terraform Cache On ENV Base
-      - name: Configure Terraform plugin cache
-        run: |
-          mkdir -p ~/.terraform.d
-          echo 'plugin_cache_dir = "$HOME/.terraform.d/plugin-cache"' > ~/.terraform.d/terraform.rc
-
-      - name: Cache Terraform provider plugins
-        uses: actions/cache@v3
-        with:
-          path: ~/.terraform.d/plugin-cache
-          key: terraform-plugin-${{ runner.os }}-${{ hashFiles('**/*.tf') }}
-          restore-keys: terraform-plugin-${{ runner.os }}-
-
-      - name: Setup Terraform Infrastructure Based on ENV
+      - name: Run Terraform Init & Plan Based on ENV
         run: |
           case "${ENV}" in
             dev)
-              echo "Setting up infrastructure for development..."
-              cd /home/github/actions-runner/_work/walkthrough/walkthrough
+              echo "Running Terraform for development..."
+              cd walkthrough
               ./run dev network init -var-file=../dev.tfvars
               ./run dev network plan -var-file=../dev.tfvars -out=../tfplan
               ;;
             stage)
-              echo "Setting up infrastructure for staging..."
-              cd /home/github/actions-runner/_work/walkthrough/walkthrough
+              echo "Running Terraform for staging..."
+              cd walkthrough
               ./run stage network init -var-file=../stage.tfvars
               ./run stage network plan -var-file=../stage.tfvars -out=../tfplan
               ;;
             prod)
-              echo "Setting up infrastructure for production..."
-              cd /home/github/actions-runner/_work/walkthrough/walkthrough
+              echo "Running Terraform for production..."
+              cd walkthrough
               ./run pro network init -var-file=../pro.tfvars
               ./run pro network plan -var-file=../pro.tfvars -out=../tfplan
               ;;
             *)
-              echo "Unknown ENV: '${ENV}'"
+              echo "Unknown environment: ${ENV}"
               exit 1
               ;;
           esac
