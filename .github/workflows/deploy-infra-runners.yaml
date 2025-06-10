@@ -64,6 +64,7 @@ jobs:
             echo "Running production tasks..."
           fi
 
+      # Development Environment
       - name: Setup Terraform Infrastructure (Development Only)
         if: env.ENV == 'dev'
         run: |
@@ -71,20 +72,27 @@ jobs:
           cd /home/github/actions-runner/_work/walkthrough/walkthrough
           ./run dev network init -var-file=../dev.tfvars
           ./run dev network plan -var-file=../dev.tfvars -out=../tfplan
-
-        # ./run dev network apply -auto-approve ../tfplan
-        # echo "Setting up infrastructure for development - compute state..."
-        # cd /home/ubuntu/actions-runner/marketup/marketup-ops/marketup-ops/terraform
-        # ./run dev compute init -var-file=../dev.tfvars
-        # ./run dev compute plan -var-file=../dev.tfvars -out=tfplan
-        # ./run dev compute apply -var-file=../dev.tfvars -auto-approve tfplan
-
-        # - name: Destroy Terraform Infrastructure (Development Only)
-        #   if: env.ENV == 'dev'
-        #   run: |
-        #     echo "Destroying infrastructure for development - network state..."
-        #     cd /home/ubuntu/actions-runner/marketup/marketup-ops/marketup-ops/terraform
-        #     ./run dev network init -var-file=../dev.tfvars
-        #     ./run dev network destroy -var-file=../dev.tfvars -auto-approve
         env:
           ENV: dev
+
+      # Staging Environment
+      - name: Setup Terraform Infrastructure (Staging Only)
+        if: env.ENV == 'stage'
+        run: |
+          echo "Setting up infrastructure for staging - network state..."
+          cd /home/github/actions-runner/_work/walkthrough/walkthrough
+          ./run stage network init -var-file=../stage.tfvars
+          ./run stage network plan -var-file=../stage.tfvars -out=../tfplan
+        env:
+          ENV: stage
+
+      # Production Environment
+      - name: Setup Terraform Infrastructure (Production Only)
+        if: env.ENV == 'prod'
+        run: |
+          echo "Setting up infrastructure for production - network state..."
+          cd /home/github/actions-runner/_work/walkthrough/walkthrough
+          ./run pro network init -var-file=../pro.tfvars
+          ./run pro network plan -var-file=../pro.tfvars -out=../tfplan
+        env:
+          ENV: production
