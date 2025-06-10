@@ -21,12 +21,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      # - name: Update package lists (with password)
-      #   env:
-      #     USER_PASSWORD: ${{ secrets.RUNNER_PASSWORD }}
-      #   run: |
-      #     echo "$USER_PASSWORD" | sudo -S apt-get update
-      #     sudo apt-get update && sudo apt-get install -y unzip && sudo unzip file.zip
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
       - name: Check if Terraform is installed
         id: check_terraform
@@ -45,14 +43,6 @@ jobs:
 
       - name: Check Terraform version
         run: terraform version
-
-        # env:
-        # TF_VAR_my_secret: ${{ secrets.AWS_ACCOUNT_ID }}
-
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
 
       - name: Debug Base Branch
         run: |
