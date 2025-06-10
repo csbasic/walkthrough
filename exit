@@ -1,0 +1,221 @@
+[33mcommit a07a0f14cb8a543a6328a68d155096566f2b9ed0[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature[m[33m)[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Tue Jun 10 19:27:28 2025 +0100
+
+    Ensure terraform does not run redundant processes
+
+[33mcommit 11d7372143a1f070590bdd723a9f87772868e9e0[m[33m ([m[1;31morigin/feature[m[33m)[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Tue Jun 10 19:15:43 2025 +0100
+
+    Build docker image of selfhosted Github Action Runner
+
+[33mcommit fb5bf6528b6fcf925ca3bfb3f40479dd19202922[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Tue Jun 10 18:58:01 2025 +0100
+
+    Build docker image of selfhosted Github Action Runner
+
+[33mcommit 9b85c3763ed01b17b6125932a47fc56eced4917d[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Tue Jun 10 18:54:54 2025 +0100
+
+    Build docker image of selfhosted Github Action Runner
+
+[33mcommit 9f95ddef264686b5aea63e64e08a8a5fa46bdb86[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Tue Jun 10 18:02:30 2025 +0100
+
+    Build docker image of selfhosted Github Action Runner
+
+[33mcommit fdfee82afeb4c3d2111e5a34d3c6525f76b13182[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Tue Jun 10 17:39:34 2025 +0100
+
+    Build docker image of selfhosted Github Action Runner
+
+[33mcommit 12566a0a1d1b71a3c6a6a1e3b05aa79c7d252dc4[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Tue Jun 10 17:31:54 2025 +0100
+
+    Build docker image of selfhosted Github Action Runner
+
+[33mcommit c8bfa647adec44f7a823dbb914cd71e2a27da9a4[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Tue Jun 10 17:29:21 2025 +0100
+
+    Build docker image of selfhosted Github Action Runner
+
+[33mcommit 1d8ded2a6f6a183a7a055f7f288faf23f502eb81[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Tue Jun 10 04:29:40 2025 +0100
+
+    Build docker image of selfhosted Github Action Runner
+
+[33mcommit 04ff5a7d2bec184aaa8b446e74ea6aed9f17097b[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Tue Jun 10 04:23:50 2025 +0100
+
+    Build docker image of selfhosted Github Action Runner
+
+[33mcommit 1d5810a05baae5d5f7a9210f14f38480ee327136[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Tue Jun 10 04:11:40 2025 +0100
+
+    Build docker image of selfhosted Github Action Runner
+
+[33mcommit 509b3ad8a314bec4987b85ca34f85be1eabc96c5[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Tue Jun 10 04:01:46 2025 +0100
+
+    Build docker image of selfhosted Github Action Runner
+
+[33mcommit 9fe26749a7d7b1b57c7bfa497ae0bd0f2874f2a9[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Tue Jun 10 03:50:24 2025 +0100
+
+    Build docker image of selfhosted Github Action Runner
+
+[33mcommit 52d23d0a533b6c4ec25c4863c1e996d23c3680b7[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Tue Jun 10 03:47:36 2025 +0100
+
+    Build docker image of selfhosted Github Action Runner
+
+[33mcommit b671cdb0e33bb0a3bba9df876c8275674cd7fbd0[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Tue Jun 10 03:44:11 2025 +0100
+
+    Build docker image of selfhosted Github Action Runner
+
+[33mcommit e1b6fa9a54bc8ae5c5a32535ea8fd7910e68c606[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Tue Jun 10 03:37:37 2025 +0100
+
+    Build docker image of selfhosted Github Action Runner
+
+[33mcommit 6a2ab9a598e96b7643bec00060ef1745237647fc[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Tue Jun 10 02:22:29 2025 +0100
+
+    Build docker image of selfhosted Github Action Runner
+
+[33mcommit 21f1a31107c28c1ecf0d0a9ecbf859b2b9733c25[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Tue Jun 10 02:02:10 2025 +0100
+
+    Build docker image of selfhosted Github Action Runner
+
+[33mcommit d9405554e9e4007692581091de6400eaa128c2d8[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Tue Jun 10 00:19:13 2025 +0100
+
+    Build docker image of selfhosted Github Action Runner
+
+[33mcommit c54332d9760ad3a72bd5b44bfb3f259ac350d54d[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Thu Jun 5 07:07:34 2025 +0100
+
+    adjusted
+
+[33mcommit c6313c714f777b3b10dbd67327f4db8cffa9e8da[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Thu Jun 5 07:03:17 2025 +0100
+
+    adjusted
+
+[33mcommit a5995fbc4fca442a6fdccac10889b203bd913963[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Thu Jun 5 06:54:21 2025 +0100
+
+    adjusted
+
+[33mcommit a6810984675cd4252a1179a03f368d2f3a96cad2[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Thu Jun 5 06:52:47 2025 +0100
+
+    adjusted
+
+[33mcommit 3afd7d7f0f0e0f3aa088a0c5870a129d4cea8d1e[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Thu Jun 5 06:45:10 2025 +0100
+
+    adjusted
+
+[33mcommit 4c6aa54ea885c5c9fc587279e1a97b393d937fb6[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Thu Jun 5 06:42:15 2025 +0100
+
+    adjusted
+
+[33mcommit 5961a0900a1b40aaece37e250b97b344dbfbb738[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Thu Jun 5 06:16:27 2025 +0100
+
+    adjusted
+
+[33mcommit ac8513e7230ba9c2e9a91e09681be7e59349fe6d[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Thu Jun 5 06:10:17 2025 +0100
+
+    adjusted
+
+[33mcommit 788c81ff88018306192efe1e72e865eb431ad4dc[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Thu Jun 5 06:06:20 2025 +0100
+
+    get directory
+
+[33mcommit bf2c6bfefa61a265ceeb9180233e2753a93839f3[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Thu Jun 5 05:47:53 2025 +0100
+
+    reviewed first runner test
+
+[33mcommit 4d093fc9f45159c22ed23ee3258683feebddd1e8[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Thu Jun 5 05:44:33 2025 +0100
+
+    first runner test
+
+[33mcommit f03535251ee74a746765c6e914286245778dc665[m[33m ([m[1;32mdev[m[33m)[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Thu Jun 5 05:10:18 2025 +0100
+
+    actions testing
+
+[33mcommit 9133791898d59357131bf23ed26b11db28980d23[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Thu Jun 5 05:08:49 2025 +0100
+
+    actions testing
+
+[33mcommit 7ae030218c1d29541676db75918378fd732fe84e[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Thu Jun 5 05:06:29 2025 +0100
+
+    actions testing
+
+[33mcommit 89bed4ffe86a09e9d3c09a048e8da4a661a1d62f[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Thu Jun 5 05:01:30 2025 +0100
+
+    actions testing
+
+[33mcommit bdaa1af92966f19a9784e382e872c7be91911bd4[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Thu Jun 5 05:00:04 2025 +0100
+
+    actions testing
+
+[33mcommit 38da47ac34d3f865b26a16e958764115e5768dc1[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Thu Jun 5 04:57:48 2025 +0100
+
+    actions testing
+
+[33mcommit 2cdc5c26a245fec0b13cf362e94316c83b0cff73[m[33m ([m[1;32mmain[m[33m)[m
+Author: Chi Serge <chijokae@gmail.com>
+Date:   Tue Jun 3 02:25:57 2025 +0100
+
+    1st commit

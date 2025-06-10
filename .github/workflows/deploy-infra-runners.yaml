@@ -64,39 +64,18 @@ jobs:
           ENV: ${{ env.ENV }}
 
       # Check Terraform Cache On ENV Base
-      - name: Cache Terraform provider plugins
+      - name: Configure Terraform plugin cache
         run: |
-          case "${ENV}" in
-            dev)
-              echo "Caching for dev..."
-              echo "TF_CACHE_DIR=/home/github/actions-runner/_work/walkthrough/walkthrough/.terraform" >> $GITHUB_ENV
-              ;;
-            stage)
-              echo "Caching for stage..."
-              echo "TF_CACHE_DIR=/home/github/actions-runner/_work/walkthrough/walkthrough/.terraform" >> $GITHUB_ENV
-              ;;
-            prod)
-              echo "Caching for prod..."
-              echo "TF_CACHE_DIR=/home/github/actions-runner/_work/walkthrough/walkthrough/.terraform" >> $GITHUB_ENV
-              ;;
-            *)
-              echo "Unknown ENV: '${ENV}'"
-              exit 1
-              ;;
-          esac
-        env:
-          ENV: ${{ env.ENV }}
+          mkdir -p ~/.terraform.d
+          echo 'plugin_cache_dir = "$HOME/.terraform.d/plugin-cache"' > ~/.terraform.d/terraform.rc
 
-      # Restore Cache
-      - name: Restore Terraform provider cache
+      - name: Cache Terraform provider plugins
         uses: actions/cache@v3
         with:
-          path: ${{ env.TF_CACHE_DIR }}
-          key: terraform-${{ env.ENV }}-${{ runner.os }}-${{ hashFiles('**/*.tf') }}
-          restore-keys: |
-            terraform-${{ env.ENV }}-${{ runner.os }}-
+          path: ~/.terraform.d/plugin-cache
+          key: terraform-plugin-${{ runner.os }}-${{ hashFiles('**/*.tf') }}
+          restore-keys: terraform-plugin-${{ runner.os }}-
 
-      # Development Environment
       - name: Setup Terraform Infrastructure Based on ENV
         run: |
           case "${ENV}" in
