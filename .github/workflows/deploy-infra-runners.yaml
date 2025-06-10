@@ -28,12 +28,11 @@ jobs:
       #   run: |
       #     echo "$USER_PASSWORD" | sudo -S apt-get update
       #     sudo apt-get update && sudo apt-get install -y unzip && sudo unzip file.zip
-
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
 
-        env:
-        TF_VAR_my_secret: ${{ secrets.AWS_ACCOUNT_ID }}
+        # env:
+        # TF_VAR_my_secret: ${{ secrets.AWS_ACCOUNT_ID }}
 
       - name: Install Node.js
         uses: actions/setup-node@v3
