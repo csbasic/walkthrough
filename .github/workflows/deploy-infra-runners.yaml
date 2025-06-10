@@ -27,7 +27,7 @@ jobs:
       #     sudo apt-get update && sudo apt-get install -y unzip && sudo unzip file.zip
 
       - name: Install Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
 
       - name: Install Node.js
         uses: actions/setup-node@v3
@@ -83,11 +83,11 @@ jobs:
         if: env.ENV == 'dev'
         run: |
           echo "Setting up infrastructure for development - network state..."
-          cd /home/github/actions-runner/_work/decoy/decoy
+          cd /home/github/actions-runner/_work/walkthrough/walkthrough
           ./run dev network init -var-file=../dev.tfvars
           ./run dev network plan -var-file=../dev.tfvars -out=../tfplan
-          ./run dev network apply -auto-approve ../tfplan
 
+        # ./run dev network apply -auto-approve ../tfplan
         # echo "Setting up infrastructure for development - compute state..."
         # cd /home/ubuntu/actions-runner/marketup/marketup-ops/marketup-ops/terraform
         # ./run dev compute init -var-file=../dev.tfvars
