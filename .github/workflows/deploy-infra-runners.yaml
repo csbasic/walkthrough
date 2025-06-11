@@ -21,26 +21,24 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Cache Terraform Plugin Directory
+      - name: Restore Terraform Plugin Cache
         uses: actions/cache@v3
         with:
           path: ~/.terraform.d/plugin-cache
           key: terraform-plugin-${{ runner.os }}-${{ hashFiles('walkthrough/walkthrough/**/*.tf') }}
-          restore-keys: |
-            terraform-plugin-${{ runner.os }}-
+          restore-keys: terraform-plugin-${{ runner.os }}-
 
-      - name: Cache Terraform Working Directory
+      - name: Restore Terraform Working Directory Cache
         uses: actions/cache@v3
         with:
-          path: /home/github/actions-runner/_work/walkthrough/walkthrough/.terraform
+          path: walkthrough/walkthrough/.terraform
           key: terraform-dir-${{ runner.os }}-${{ hashFiles('walkthrough/walkthrough/**/*.tf') }}
-          restore-keys: |
-            terraform-dir-${{ runner.os }}-
+          restore-keys: terraform-dir-${{ runner.os }}-
 
       - name: Debug Base Branch
         run: |
           echo "Base branch: $BASE_BRANCH"
-          echo "Event full JSON:"
+          echo "Full event JSON:"
           echo "${{ toJson(github.event) }}"
         env:
           BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
@@ -48,6 +46,7 @@ jobs:
       - name: Setup Terraform Based on ENV
         run: |
           BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+          echo "Detected base branch: $BASE_BRANCH"
 
           case "$BASE_BRANCH" in
             dev)
@@ -73,7 +72,20 @@ jobs:
               ;;
             *)
               echo "Unsupported base branch: $BASE_BRANCH"
-              echo "Unknown environment: ${ENV}"
               exit 1
               ;;
           esac
+
+      - name: Save Terraform Plugin Cache
+        if: always()
+        uses: actions/cache@v3
+        with:
+          path: ~/.terraform.d/plugin-cache
+          key: terraform-plugin-${{ runner.os }}-${{ hashFiles('walkthrough/walkthrough/**/*.tf') }}
+
+      - name: Save Terraform Working Directory Cache
+        if: always()
+        uses: actions/cache@v3
+        with:
+          path: walkthrough/walkthrough/.terraform
+          key: terraform-dir-${{ runner.os }}-${{ hashFiles('walkthrough/walkthrough/**/*.tf') }}
