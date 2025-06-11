@@ -21,25 +21,25 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Restore Terraform Plugin Cache
+      - name: Cache Terraform Plugin Directory
         uses: actions/cache@v3
         with:
           path: ~/.terraform.d/plugin-cache
           key: terraform-plugin-${{ runner.os }}-${{ hashFiles('walkthrough/walkthrough/**/*.tf') }}
-          restore-keys: terraform-plugin-${{ runner.os }}-
+          restore-keys: |
+            terraform-plugin-${{ runner.os }}-
 
       - name: Debug Base Branch
         run: |
           echo "Base branch: $BASE_BRANCH"
-          echo "Full event JSON:"
+          echo "Event full JSON:"
           echo "${{ toJson(github.event) }}"
         env:
           BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
 
-      - name: Setup Terraform Based on ENV
+      - name: Run Terraform Init & Plan Based on ENV
         run: |
           BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
-          echo "Detected base branch: $BASE_BRANCH"
 
           case "$BASE_BRANCH" in
             dev)
@@ -65,13 +65,7 @@ jobs:
               ;;
             *)
               echo "Unsupported base branch: $BASE_BRANCH"
+              echo "Unknown environment: ${ENV}"
               exit 1
               ;;
           esac
-
-      - name: Save Terraform Plugin Cache
-        if: always()
-        uses: actions/cache@v3
-        with:
-          path: ~/.terraform.d/plugin-cache
-          key: terraform-plugin-${{ runner.os }}-${{ hashFiles('walkthrough/walkthrough/**/*.tf') }}
