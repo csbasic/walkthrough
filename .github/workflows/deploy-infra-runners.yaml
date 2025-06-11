@@ -16,10 +16,11 @@ jobs:
     strategy:
       matrix:
         env: [dev, staging, prod]
+        target: [dev, staging, prod]
 
     defaults:
       run:
-        working-directory: ${{ matrix.env }}
+        working-directory: ${{ matrix.target }}
 
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
