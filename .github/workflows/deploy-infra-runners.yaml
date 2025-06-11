@@ -15,45 +15,54 @@ jobs:
 
     strategy:
       matrix:
-        env: [dev, staging, prod]
-        target: [dev, staging, prod]
+        include:
+          - branch: dev
+            env: dev
+          - branch: stage
+            env: staging
+          - branch: main
+            env: prod
 
-    defaults:
-      run:
-        working-directory: ${{ matrix.target }}
-
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-      ENV: ${{ matrix.env }}
-      TARGET: ${{ matrix.target }}
-
+    # Only run the matrix row that matches the current branch
+    continue-on-error: false
     steps:
+      - name: Skip non-matching branch
+        if: ${{ github.ref != format('refs/heads/{0}', matrix.branch) }}
+        run: |
+          echo "Skipping matrix branch: ${{ matrix.branch }}"
+
+      - name: Exit if branch doesn't match
+        if: ${{ github.ref != format('refs/heads/{0}', matrix.branch) }}
+        run: exit 0
+
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Set Environment Variable
+        run: echo "ENV=${{ matrix.env }}" >> $GITHUB_ENV
 
       - name: Cache Terraform Provider Plugins
         uses: actions/cache@v3
         with:
           path: ~/.terraform.d/plugin-cache
-          key: terraform-plugin-${{ matrix.env }}-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles('**/*.tf') }}
+          key: terraform-plugin-${{ matrix.env }}-${{ runner.os }}-${{ hashFiles('**/*.tf') }}
           restore-keys: |
-            terraform-plugin-${{ matrix.env }}-${{ matrix.target }}-${{ runner.os }}-
+            terraform-plugin-${{ matrix.env }}-${{ runner.os }}-
 
       - name: Cache Terraform .terraform Directory
         uses: actions/cache@v3
         with:
           path: ./walkthrough/.terraform
-          key: terraform-dir-${{ matrix.env }}-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles('walkthrough/**/*.tf') }}
+          key: terraform-dir-${{ matrix.env }}-${{ runner.os }}-${{ hashFiles('walkthrough/**/*.tf') }}
           restore-keys: |
-            terraform-dir-${{ matrix.env }}-${{ matrix.target }}-${{ runner.os }}-
+            terraform-dir-${{ matrix.env }}-${{ runner.os }}-
 
-      - name: Echo Current Environment and Target
-        run: echo "Deploying $TARGET to $ENV"
+      - name: Echo Current Environment
+        run: echo "Deploying environment $ENV"
 
       - name: Verify Directory Exists
         run: |
-          DIR_PATH="./${ENV}/${TARGET}"
+          DIR_PATH="./${ENV}/"
           echo "Checking for directory: $DIR_PATH"
           if [ ! -d "$DIR_PATH" ]; then
             echo "Error: Directory $DIR_PATH does not exist."
@@ -62,19 +71,19 @@ jobs:
 
       - name: Setup Terraform Infrastructure Based on ENV
         run: |
-          echo "Running Terraform for $ENV -> $TARGET..."
+          echo "Running Terraform for $ENV..."
           case "${ENV}" in
             dev)
-              ./run dev ${TARGET} init -var-file=../dev.tfvars
-              ./run dev ${TARGET} plan -var-file=../dev.tfvars -out=../tfplan
+              ./run dev init -var-file=../dev.tfvars
+              ./run dev plan -var-file=../dev.tfvars -out=../tfplan
               ;;
             staging)
-              ./run stage ${TARGET} init -var-file=../stage.tfvars
-              ./run stage ${TARGET} plan -var-file=../stage.tfvars -out=../tfplan
+              ./run stage init -var-file=../stage.tfvars
+              ./run stage plan -var-file=../stage.tfvars -out=../tfplan
               ;;
             prod)
-              ./run pro ${TARGET} init -var-file=../pro.tfvars
-              ./run pro ${TARGET} plan -var-file=../pro.tfvars -out=../tfplan
+              ./run pro init -var-file=../pro.tfvars
+              ./run pro plan -var-file=../pro.tfvars -out=../tfplan
               ;;
             *)
               echo "Unknown ENV: $ENV"
