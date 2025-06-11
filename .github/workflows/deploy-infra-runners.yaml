@@ -25,15 +25,15 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.terraform.d/plugin-cache
-          key: terraform-plugin-${{ runner.os }}-${{ hashFiles('**/*.tf') }}
+          key: terraform-plugin-${{ runner.os }}-${{ hashFiles('walkthrough/walkthrough/**/*.tf') }}
           restore-keys: |
             terraform-plugin-${{ runner.os }}-
 
       - name: Cache Terraform Working Directory
         uses: actions/cache@v3
         with:
-          path: ./walkthrough/.terraform
-          key: terraform-dir-${{ runner.os }}-${{ hashFiles('walkthrough/**/*.tf') }}
+          path: /home/github/actions-runner/_work/walkthrough/walkthrough/.terraform
+          key: terraform-dir-${{ runner.os }}-${{ hashFiles('walkthrough/walkthrough/**/*.tf') }}
           restore-keys: |
             terraform-dir-${{ runner.os }}-
 
@@ -45,7 +45,7 @@ jobs:
         env:
           BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
 
-      - name: Run Terraform Init & Plan Based on ENV
+      - name: Setup Terraform Based on ENV
         run: |
           BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
 
