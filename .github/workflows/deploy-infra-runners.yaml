@@ -16,48 +16,53 @@ jobs:
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      TF_PLUGIN_CACHE_DIR: ~/.terraform.d/plugin-cache
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Debug Base Branch
-        run: |
-          echo "Base branch: $BASE_BRANCH"
-          echo "Event full JSON:"
-          echo "${{ toJson(github.event) }}"
-        env:
-          BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
+      - name: Restore Terraform Plugin Cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.terraform.d/plugin-cache
+          key: terraform-plugin-${{ runner.os }}-${{ hashFiles('walkthrough/**/*.tf') }}
+          restore-keys: terraform-plugin-${{ runner.os }}-
 
-      - name: Run Terraform Init & Plan Based on ENV
+      - name: Set Environment and Run Terraform
         run: |
           BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+          echo "Detected base branch: $BASE_BRANCH"
+
+          export TF_PLUGIN_CACHE_DIR=$HOME/.terraform.d/plugin-cache
+
+          cd /home/github/actions-runner/_work/walkthrough/walkthrough
 
           case "$BASE_BRANCH" in
             dev)
               echo "ENV=dev" >> $GITHUB_ENV
-              echo "Running Terraform for development..."
-              cd /home/github/actions-runner/_work/walkthrough/walkthrough
               ./run dev network init -var-file=../dev.tfvars
               ./run dev network plan -var-file=../dev.tfvars -out=../tfplan
               ;;
             stage)
               echo "ENV=stage" >> $GITHUB_ENV
-              echo "Running Terraform for staging..."
-              cd /home/github/actions-runner/_work/walkthrough/walkthrough
               ./run stage network init -var-file=../stage.tfvars
               ./run stage network plan -var-file=../stage.tfvars -out=../tfplan
               ;;
             main)
               echo "ENV=prod" >> $GITHUB_ENV
-              echo "Running Terraform for production..."
-              cd /home/github/actions-runner/_work/walkthrough/walkthrough
               ./run pro network init -var-file=../pro.tfvars
               ./run pro network plan -var-file=../pro.tfvars -out=../tfplan
               ;;
             *)
               echo "Unsupported base branch: $BASE_BRANCH"
-              echo "Unknown environment: ${ENV}"
               exit 1
               ;;
           esac
+
+      - name: Save Terraform Plugin Cache
+        if: always()
+        uses: actions/cache@v3
+        with:
+          path: ~/.terraform.d/plugin-cache
+          key: terraform-plugin-${{ runner.os }}-${{ hashFiles('walkthrough/**/*.tf') }}
