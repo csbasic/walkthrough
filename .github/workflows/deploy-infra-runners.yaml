@@ -28,13 +28,6 @@ jobs:
           key: terraform-plugin-${{ runner.os }}-${{ hashFiles('walkthrough/walkthrough/**/*.tf') }}
           restore-keys: terraform-plugin-${{ runner.os }}-
 
-      - name: Restore Terraform Working Directory Cache
-        uses: actions/cache@v3
-        with:
-          path: walkthrough/walkthrough/.terraform
-          key: terraform-dir-${{ runner.os }}-${{ hashFiles('walkthrough/walkthrough/**/*.tf') }}
-          restore-keys: terraform-dir-${{ runner.os }}-
-
       - name: Debug Base Branch
         run: |
           echo "Base branch: $BASE_BRANCH"
@@ -82,10 +75,3 @@ jobs:
         with:
           path: ~/.terraform.d/plugin-cache
           key: terraform-plugin-${{ runner.os }}-${{ hashFiles('walkthrough/walkthrough/**/*.tf') }}
-
-      - name: Save Terraform Working Directory Cache
-        if: always()
-        uses: actions/cache@v3
-        with:
-          path: walkthrough/walkthrough/.terraform
-          key: terraform-dir-${{ runner.os }}-${{ hashFiles('walkthrough/walkthrough/**/*.tf') }}
