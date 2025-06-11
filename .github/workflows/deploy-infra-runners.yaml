@@ -23,22 +23,20 @@ jobs:
           - branch: main
             env: prod
 
-    # Only run the matrix row that matches the current branch
-    continue-on-error: false
     steps:
       - name: Skip non-matching branch
-        if: ${{ github.ref != format('refs/heads/{0}', matrix.branch) }}
+        if: ${{ github.base_ref != matrix.branch }}
         run: |
           echo "Skipping matrix branch: ${{ matrix.branch }}"
 
       - name: Exit if branch doesn't match
-        if: ${{ github.ref != format('refs/heads/{0}', matrix.branch) }}
+        if: ${{ github.base_ref != matrix.branch }}
         run: exit 0
 
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set Environment Variable
+      - name: Set ENV variable
         run: echo "ENV=${{ matrix.env }}" >> $GITHUB_ENV
 
       - name: Cache Terraform Provider Plugins
@@ -52,7 +50,7 @@ jobs:
       - name: Cache Terraform .terraform Directory
         uses: actions/cache@v3
         with:
-          path: ./walkthrough/.terraform
+          path: ./walkthrough/${{ matrix.env }}/.terraform
           key: terraform-dir-${{ matrix.env }}-${{ runner.os }}-${{ hashFiles('walkthrough/**/*.tf') }}
           restore-keys: |
             terraform-dir-${{ matrix.env }}-${{ runner.os }}-
@@ -62,7 +60,7 @@ jobs:
 
       - name: Verify Directory Exists
         run: |
-          DIR_PATH="./${ENV}/"
+          DIR_PATH="./walkthrough/${ENV}/"
           echo "Checking for directory: $DIR_PATH"
           if [ ! -d "$DIR_PATH" ]; then
             echo "Error: Directory $DIR_PATH does not exist."
@@ -70,6 +68,7 @@ jobs:
           fi
 
       - name: Setup Terraform Infrastructure Based on ENV
+        working-directory: walkthrough/${{ env.ENV }}
         run: |
           echo "Running Terraform for $ENV..."
           case "${ENV}" in
