@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         env: [dev, staging, prod]
-        target: [network, compute, data] # Add other targets here like "app", "db" if needed
+        target: [network, compute, data]
 
     defaults:
       run:
@@ -31,11 +31,6 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
-      - name: Configure Terraform Plugin Cache Directory
-        run: |
-          mkdir -p ~/.terraform.d/plugin-cache
-          echo 'plugin_cache_dir = "$HOME/.terraform.d/plugin-cache"' > ~/.terraform.d/terraform.rc
 
       - name: Cache Terraform Provider Plugins
         uses: actions/cache@v3
