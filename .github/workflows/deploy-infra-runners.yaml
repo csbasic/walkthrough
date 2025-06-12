@@ -22,12 +22,20 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Set Environment and Run Terraform
+      - name: Ensure Plugin Cache Directory Exists
+        run: mkdir -p ~/.terraform.d/plugin-cache
+
+      - name: Restore Terraform Plugin Cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.terraform.d/plugin-cache
+          key: terraform-plugin-${{ runner.os }}
+          restore-keys: terraform-plugin-${{ runner.os }}-
+
+      - name: Run Terraform Based on Environment
         run: |
           BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
-          echo "Detected base branch: $BASE_BRANCH"
-
-          export TF_PLUGIN_CACHE_DIR=$HOME/.terraform.d/plugin-cache
+          echo "Base branch: $BASE_BRANCH"
 
           cd /home/github/actions-runner/_work/walkthrough/walkthrough
 
@@ -52,3 +60,10 @@ jobs:
               exit 1
               ;;
           esac
+
+      - name: Save Terraform Plugin Cache
+        if: always()
+        uses: actions/cache@v3
+        with:
+          path: ~/.terraform.d/plugin-cache
+          key: terraform-plugin-${{ runner.os }}
