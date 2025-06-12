@@ -22,13 +22,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Restore Terraform Plugin Cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.terraform.d/plugin-cache
-          key: terraform-plugin-${{ runner.os }}-${{ hashFiles('walkthrough/**/*.tf') }}
-          restore-keys: terraform-plugin-${{ runner.os }}-
-
       - name: Set Environment and Run Terraform
         run: |
           BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
@@ -59,10 +52,3 @@ jobs:
               exit 1
               ;;
           esac
-
-      - name: Save Terraform Plugin Cache
-        if: always()
-        uses: actions/cache@v3
-        with:
-          path: ~/.terraform.d/plugin-cache
-          key: terraform-plugin-${{ runner.os }}-${{ hashFiles('walkthrough/**/*.tf') }}
