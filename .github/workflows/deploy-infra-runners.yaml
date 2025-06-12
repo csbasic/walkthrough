@@ -22,36 +22,22 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Ensure Plugin Cache Directory Exists
-        run: mkdir -p ~/.terraform.d/plugin-cache
-
-      - name: Restore Terraform Plugin Cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.terraform.d/plugin-cache
-          key: terraform-plugin-${{ runner.os }}
-          restore-keys: terraform-plugin-${{ runner.os }}-
-
-      - name: Run Terraform Based on Environment
+      - name: Set ENV and Run Terraform
         run: |
           BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
-          echo "Base branch: $BASE_BRANCH"
-
+          echo "Detected base branch: $BASE_BRANCH"
           cd /home/github/actions-runner/_work/walkthrough/walkthrough
 
           case "$BASE_BRANCH" in
             dev)
-              echo "ENV=dev" >> $GITHUB_ENV
               ./run dev network init -var-file=../dev.tfvars
               ./run dev network plan -var-file=../dev.tfvars -out=../tfplan
               ;;
             stage)
-              echo "ENV=stage" >> $GITHUB_ENV
               ./run stage network init -var-file=../stage.tfvars
               ./run stage network plan -var-file=../stage.tfvars -out=../tfplan
               ;;
             main)
-              echo "ENV=prod" >> $GITHUB_ENV
               ./run pro network init -var-file=../pro.tfvars
               ./run pro network plan -var-file=../pro.tfvars -out=../tfplan
               ;;
@@ -60,10 +46,3 @@ jobs:
               exit 1
               ;;
           esac
-
-      - name: Save Terraform Plugin Cache
-        if: always()
-        uses: actions/cache@v3
-        with:
-          path: ~/.terraform.d/plugin-cache
-          key: terraform-plugin-${{ runner.os }}
