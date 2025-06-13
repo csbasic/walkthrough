@@ -20,32 +20,65 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Ensure Terraform Plugin Cache Directory Exists
-        run: mkdir -p ~/.terraform.d/plugin-cache
-
-      - name: Set ENV and Run Terraform
+      - name: Set Github Branch & Terraform Infra
         run: |
           BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+          INFRA_STATE = network
+          BACKEND_STATE = false
+
           echo "Detected base branch: $BASE_BRANCH"
-          cd /home/github/actions-runner/_work/walkthrough/walkthrough
 
           case "$BASE_BRANCH" in
             dev)
-              ./run dev network init -var-file=../dev.tfvars
-              ./run dev network plan -var-file=../dev.tfvars -out=../tfplan
+              INFRA_ENV = dev
+              VAR_FILE=../dev.tfvars
+              ENV_OUT_FILE=../dev-tfplan
               ;;
             stage)
-              ./run stage network init -var-file=../stage.tfvars
-              ./run stage network plan -var-file=../stage.tfvars -out=../tfplan
+              INFRA_ENV = stage
+              VAR_FILE=../stage.tfvars
+              ENV_OUT_FILE=../stage-tfplan
               ;;
             main)
-              ./run pro network init -var-file=../pro.tfvars
-              ./run pro network plan -var-file=../pro.tfvars -out=../tfplan
+              INFRA_ENV = prod
+              VAR_FILE=../prod.tfvars
+              ENV_OUT_FILE=../prod-tfplan
               ;;
             *)
               echo "Unsupported base branch: $BASE_BRANCH"
               exit 1
               ;;
           esac
+
+      - name: Terraform Init
+        run: |
+          echo "Initializing..."
+          cd /home/github/actions-runner/_work/walkthrough/walkthrough
+          ./run INFRA_ENV INFRA_STATE init -var-file=$VAR_FILE \
+          -backend=BACKEND_STATE
+
+      - name: Terraform Plan and Apply
+        run: |
+          echo "Planning..."
+          ./run INFRA_ENV INFRA_STATE plan \
+            -var-file=$VAR_FILE \
+            -out=ENV_OUT_FILE \
+            -backend="$BACKEND_STATE" \
+            -input=false
+
+      #     ./run INFRA_ENV INFRA_STATE apply \
+      #       OUT_FILE
+
+      # - name: Terraform Destroy & Apply
+      #   run: |
+      #     echo "Getting ready.."
+      #     cd /home/github/actions-runner/_work/walkthrough/walkthrough
+
+      #     ./run INFRA_ENV INFRA_STATE plan \
+      #       -destroy
+      #       -out=OUT_FILE
+
+      #     ./run INFRA_ENV INFRA_STATE apply \
+      #       OUT_FILE
