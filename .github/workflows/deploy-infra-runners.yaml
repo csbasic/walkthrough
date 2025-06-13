@@ -26,7 +26,7 @@ jobs:
         run: |
           BASE_BRANCH="${{ github.event.pull_request.base.ref }}" \
             INFRA_STATE=network
-            BACKEND_STATE=false
+            BACKEND_STATE=true
 
           echo "Detected base branch: $BASE_BRANCH"
 
@@ -52,15 +52,13 @@ jobs:
               ;;
           esac
 
-      - name: Terraform Init
+      - name: Set Terraform & Configure Infra
         run: |
           echo "Initializing..."
           cd /home/github/actions-runner/_work/walkthrough/walkthrough
           ./run "$INFRA_ENV" "$INFRA_STATE" init -var-file="$VAR_FILE" \
-          -backend="$BACKEND_STATE"
+            -backend="$BACKEND_STATE"
 
-      - name: Terraform Plan and Apply
-        run: |
           echo "Planning..."
           ./run "$INFRA_ENV" "$INFRA_STATE" plan \
             -var-file="$VAR_FILE" \
