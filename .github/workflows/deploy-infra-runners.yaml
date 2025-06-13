@@ -24,16 +24,16 @@ jobs:
       - name: Set Github Branch & Terraform Infra
         run: |
           BASE_BRANCH="${{ github.event.pull_request.base.ref }}" \
-            echo INFRA_STATE=network
-            echo BACKEND_STATE=true
+            echo INFRA_STATE=network >> $GITHUB_ENV
+            echo BACKEND_STATE=true >> $GITHUB_ENV
 
           echo "Detected base branch: $BASE_BRANCH"
 
           case "$BASE_BRANCH" in
             dev)
-              echo INFRA_ENV=dev
-              echo VAR_FILE=../dev.tfvars
-              echo ENV_OUT_FILE=../dev-tfplan
+              echo INFRA_ENV=dev >> $GITHUB_ENV
+              echo VAR_FILE=../dev.tfvars >> $GITHUB_ENV
+              echo ENV_OUT_FILE=../dev-tfplan >> $GITHUB_ENV
               ;;
             stage)
               echo INFRA_ENV=stage
