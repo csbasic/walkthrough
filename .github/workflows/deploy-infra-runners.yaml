@@ -23,27 +23,27 @@ jobs:
 
       - name: Set Github Branch & Terraform Infra
         run: |
-          BASE_BRANCH="${{ github.event.pull_request.base.ref }}" \
-            INFRA_STATE=network
-            BACKEND_STATE=true
+          BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+          INFRA_STATE=network
+          BACKEND_STATE=false
 
           echo "Detected base branch: $BASE_BRANCH"
 
           case "$BASE_BRANCH" in
             dev)
-              INFRA_ENV=dev
-              VAR_FILE=../dev.tfvars
-              ENV_OUT_FILE=../dev-tfplan
+              echo "INFRA_ENV=dev" >> $GITHUB_ENV
+              echo "VAR_FILE=../dev.tfvars" >> $GITHUB_ENV
+              echo "ENV_OUT_FILE=../dev-tfplan" >> $GITHUB_ENV
               ;;
             stage)
-              INFRA_ENV=stage
-              VAR_FILE=../stage.tfvars
-              ENV_OUT_FILE=../stage-tfplan
+              echo "INFRA_ENV=stage" >> $GITHUB_ENV
+              echo "VAR_FILE=../stage.tfvars" >> $GITHUB_ENV
+              echo "ENV_OUT_FILE=../stage-tfplan" >> $GITHUB_ENV
               ;;
             main)
-              INFRA_ENV=prod
-              VAR_FILE=../prod.tfvars
-              ENV_OUT_FILE=../prod-tfplan
+              echo "INFRA_ENV=prod" >> $GITHUB_ENV
+              echo "VAR_FILE=../prod.tfvars" >> $GITHUB_ENV
+              echo "ENV_OUT_FILE=../prod-tfplan" >> $GITHUB_ENV
               ;;
             *)
               echo "Unsupported base branch: $BASE_BRANCH"
@@ -51,19 +51,19 @@ jobs:
               ;;
           esac
 
+          # Also export these
+          echo "INFRA_STATE=$INFRA_STATE" >> $GITHUB_ENV
+          echo "BACKEND_STATE=$BACKEND_STATE" >> $GITHUB_ENV
+
       - name: Set Terraform & Configure Infra
         run: |
           echo "Initializing..."
           cd /home/github/actions-runner/_work/walkthrough/walkthrough
-          echo ./run "$INFRA_ENV" "$INFRA_STATE" init \
-            -var-file="$VAR_FILE"
+          ./run "$INFRA_ENV" "$INFRA_STATE" init -var-file="$VAR_FILE" -backend="$BACKEND_STATE"
             
 
           echo "Planning..."
-          echo ./run "$INFRA_ENV" "$INFRA_STATE" plan \
-            -var-file="$VAR_FILE" \
-            -out=ENV_OUT_FILE \
-            -input=false
+          ./run "$INFRA_ENV" "$INFRA_STATE" plan -var-file="$VAR_FILE" -out="$ENV_OUT_FILE" -input=false
 
       #     ./run "$INFRA_ENV" "$INFRA_STATE" apply \
       #       OUT_FILE
