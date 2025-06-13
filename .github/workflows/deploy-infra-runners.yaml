@@ -88,12 +88,3 @@ jobs:
 
       #     ./run INFRA_ENV "$INFRA_STATE" apply \
       #       OUT_FILE
-
-      # Export for other steps if needed
-      - name: Export Variables to EVN
-        run: |
-          echo "INFRA_ENV=$INFRA_ENV" >> $GITHUB_ENV
-          echo "VAR_FILE=$VAR_FILE" >> $GITHUB_ENV
-          echo "ENV_OUT_FILE=$ENV_OUT_FILE" >> $GITHUB_ENV
-          echo "INFRA_STATE=$INFRA_STATE" >> $GITHUB_ENV
-          echo "BACKEND_STATE=$BACKEND_STATE" >> $GITHUB_ENV
