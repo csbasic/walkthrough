@@ -56,19 +56,19 @@ jobs:
         run: |
           echo "Initializing..."
           cd /home/github/actions-runner/_work/walkthrough/walkthrough
-          ./run INFRA_ENV INFRA_STATE init -var-file=$VAR_FILE \
+          ./run INFRA_ENV "$INFRA_STATE" init -var-file=$VAR_FILE \
           -backend=BACKEND_STATE
 
       - name: Terraform Plan and Apply
         run: |
           echo "Planning..."
-          ./run INFRA_ENV INFRA_STATE plan \
+          ./run INFRA_ENV "$INFRA_STATE" plan \
             -var-file=$VAR_FILE \
             -out=ENV_OUT_FILE \
             -backend="$BACKEND_STATE" \
             -input=false
 
-      #     ./run INFRA_ENV INFRA_STATE apply \
+      #     ./run INFRA_ENV "$INFRA_STATE" apply \
       #       OUT_FILE
 
       # - name: Terraform Destroy & Apply
@@ -76,9 +76,9 @@ jobs:
       #     echo "Getting ready.."
       #     cd /home/github/actions-runner/_work/walkthrough/walkthrough
 
-      #     ./run INFRA_ENV INFRA_STATE plan \
+      #     ./run INFRA_ENV "$INFRA_STATE" plan \
       #       -destroy
       #       -out=OUT_FILE
 
-      #     ./run INFRA_ENV INFRA_STATE apply \
+      #     ./run INFRA_ENV "$INFRA_STATE" apply \
       #       OUT_FILE
