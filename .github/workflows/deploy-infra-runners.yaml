@@ -55,7 +55,7 @@ jobs:
         run: |
           echo "Initializing..."
           cd /home/github/actions-runner/_work/walkthrough/walkthrough
-          ./run dev network init -var-file=../dev.tfvars
+          echo ./run "$INFRA_ENV" "$INFRA_STATE" init -var-file="$VAR_FILE"
             
 
           echo "Planning..."
