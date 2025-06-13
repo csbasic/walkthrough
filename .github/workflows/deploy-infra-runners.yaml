@@ -24,26 +24,26 @@ jobs:
       - name: Set Github Branch & Terraform Infra
         run: |
           BASE_BRANCH="${{ github.event.pull_request.base.ref }}" \
-            echo INFRA_STATE=network >> $GITHUB_ENV
-            echo BACKEND_STATE=true >> $GITHUB_ENV
+            INFRA_STATE=network
+            BACKEND_STATE=true
 
           echo "Detected base branch: $BASE_BRANCH"
 
           case "$BASE_BRANCH" in
             dev)
-              echo INFRA_ENV=dev >> $GITHUB_ENV
-              echo VAR_FILE=../dev.tfvars >> $GITHUB_ENV
-              echo ENV_OUT_FILE=../dev-tfplan >> $GITHUB_ENV
+              INFRA_ENV=dev
+              VAR_FILE=../dev.tfvars
+              ENV_OUT_FILE=../dev-tfplan
               ;;
             stage)
-              echo INFRA_ENV=stage
-              echo VAR_FILE=../stage.tfvars
-              echo ENV_OUT_FILE=../stage-tfplan
+              INFRA_ENV=stage
+              VAR_FILE=../stage.tfvars
+              ENV_OUT_FILE=../stage-tfplan
               ;;
             main)
-              echo INFRA_ENV=prod
-              echo VAR_FILE=../prod.tfvars
-              echo ENV_OUT_FILE=../prod-tfplan
+              INFRA_ENV=prod
+              VAR_FILE=../prod.tfvars
+              ENV_OUT_FILE=../prod-tfplan
               ;;
             *)
               echo "Unsupported base branch: $BASE_BRANCH"
