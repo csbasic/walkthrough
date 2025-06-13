@@ -57,13 +57,13 @@ jobs:
           echo "Initializing..."
           cd /home/github/actions-runner/_work/walkthrough/walkthrough
           ./run "$INFRA_ENV" "$INFRA_STATE" init -var-file="$VAR_FILE" \
-            -backend="$BACKEND_STATE"
+            
 
           echo "Planning..."
           ./run "$INFRA_ENV" "$INFRA_STATE" plan \
             -var-file="$VAR_FILE" \
             -out=ENV_OUT_FILE \
-            -backend="$BACKEND_STATE" \
+
             -input=false
 
       #     ./run "$INFRA_ENV" "$INFRA_STATE" apply \
