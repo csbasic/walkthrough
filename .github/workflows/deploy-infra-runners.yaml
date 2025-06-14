@@ -33,9 +33,6 @@ jobs:
           key: terraform-modules-${{ runner.os }}-${{ hashFiles('walkthrough/walkthrough/**/*.tf') }}
           restore-keys: terraform-modules-${{ runner.os }}-
 
-      - name: Create Plugin Cache Dir
-        run: mkdir -p $TF_PLUGIN_CACHE_DIR
-
       - name: Set Github Branch & Terraform Infra
         run: |
           BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
