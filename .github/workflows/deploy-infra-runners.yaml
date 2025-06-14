@@ -16,7 +16,6 @@ jobs:
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-      TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform.d/plugin-cache
 
     steps:
       - name: Checkout Code
@@ -27,18 +26,11 @@ jobs:
         with:
           terraform_version: 1.x
 
-      - name: Cache Terraform Plugin Directory
+      - name: Cache Terraform Modules
         uses: actions/cache@v4
         with:
-          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
-          key: terraform-plugin-cache-${{ runner.os }}-${{ hashFiles('**/.terraform.lock.hcl') }}
-          restore-keys: terraform-${{ runner.os }}-
-
-      - name: Cache Module Directory
-        uses: actions/cache@v4
-        with:
-          path: .terraform/modules
-          key: terraform-modules-${{ runner.os }}-${{ hashFiles('**/*.tf') }}
+          path: walkthrough/walkthrough/.terraform/modules
+          key: terraform-modules-${{ runner.os }}-${{ hashFiles('walkthrough/walkthrough/**/*.tf') }}
           restore-keys: terraform-modules-${{ runner.os }}-
 
       - name: Create Plugin Cache Dir
