@@ -78,17 +78,16 @@ jobs:
       - name: Plan Terraform Infra
         run: |
           echo "Planning..."
-          ./run "$INFRA_ENV" "$INFRA_STATE" plan -var-file="$VAR_FILE"
+          ./run "$INFRA_ENV" "$INFRA_STATE" plan -var-file="$VAR_FILE" -out="$ENV_OUT_FILE" -input=false
 
       - name: Apply Terraform Infra
         run: |
           echo "Setting up infra..."
-          ./run "$INFRA_ENV" "$INFRA_STATE" plan -var-file="$VAR_FILE" -out="$ENV_OUT_FILE" -input=false
-          ./run "$INFRA_ENV" "$INFRA_STATE" apply ENV_OUT_FILE
 
-      - name: Terraform Destroy & Apply
-        run: |
-          echo "Getting ready.."
+          ./run "$INFRA_ENV" "$INFRA_STATE" apply "$ENV_OUT_FILE"
 
-          ./run "$INFRA_ENV" "$INFRA_STATE" plan -destroy -out=ENV_OUT_FILE
-          ./run "$INFRA_ENV" "$INFRA_STATE" apply ENV_OUT_FILE
+      # - name: Terraform Destroy & Apply
+      #   run: |
+      #     echo "Getting ready.."
+      #     ./run "$INFRA_ENV" "$INFRA_STATE" plan -destroy -out="$ENV_OUT_FILE"
+      #     ./run "$INFRA_ENV" "$INFRA_STATE" apply "$ENV_OUT_FILE"
