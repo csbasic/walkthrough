@@ -16,6 +16,7 @@ jobs:
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform.d/plugin-cache
 
     steps:
       - name: Checkout Code
@@ -32,7 +33,7 @@ jobs:
           path: |
             .terraform
             .terraform.lock.hcl
-          key: terraform-${{ runner.os }}-${{ hashFiles('**/*.tf') }}
+          key: terraform-plugin-cache-${{ runner.os }}-${{ hashFiles('**/.terraform.lock.hcl') }}
           restore-keys: terraform-${{ runner.os }}-
 
       - name: Set Github Branch & Terraform Infra
@@ -68,16 +69,16 @@ jobs:
           echo "INFRA_STATE=$INFRA_STATE" >> $GITHUB_ENV
           echo "BACKEND_STATE=$BACKEND_STATE" >> $GITHUB_ENV
 
-      - name: Initialize Terraform Config
-        run: |
-          echo "Initializing..."
-          cd /home/github/actions-runner/_work/walkthrough/walkthrough
-          ./run "$INFRA_ENV" "$INFRA_STATE" init -var-file="$VAR_FILE"
-
-      # - name: Plan Terraform Infra
+      # - name: Initialize Terraform Config
       #   run: |
-      #     echo "Planning..."
-      #     ./run "$INFRA_ENV" "$INFRA_STATE" plan -var-file="$VAR_FILE" -out="$ENV_OUT_FILE" -input=false
+      #     echo "Initializing..."
+      #     cd /home/github/actions-runner/_work/walkthrough/walkthrough
+      #     ./run "$INFRA_ENV" "$INFRA_STATE" init -var-file="$VAR_FILE"
+
+      - name: Plan Terraform Infra
+        run: |
+          echo "Planning..."
+          ./run "$INFRA_ENV" "$INFRA_STATE" plan -var-file="$VAR_FILE" -out="$ENV_OUT_FILE" -input=false
 
       # - name: Apply Terraform Infra
       #   run: |
