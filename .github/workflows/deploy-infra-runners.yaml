@@ -21,19 +21,21 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+      # Download cached plugin cache artifact if exists
+      - name: Download Terraform Plugin Cache
+        uses: actions/download-artifact@v4
         with:
-          terraform_version: 1.x
+          name: terraform-plugin-cache
+          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
+        continue-on-error: true # Continue if not found
 
-      - name: Cache Terraform Directory
-        uses: actions/cache@v4
+      # Download cached modules cache artifact if exists
+      - name: Download Terraform Modules Cache
+        uses: actions/download-artifact@v4
         with:
-          path: |
-            walkthrough/walkthrough/.terraform
-            walkthrough/walkthrough/.terraform.lock.hcl
-          key: terraform-${{ runner.os }}-${{ hashFiles('walkthrough/walkthrough/**/*.tf') }}
-          restore-keys: terraform-${{ runner.os }}-
+          name: terraform-modules-cache
+          path: .terraform/modules
+        continue-on-error: true # Continue if not found
 
       - name: Set Github Branch & Terraform Infra
         run: |
@@ -71,7 +73,7 @@ jobs:
         run: |
           echo "Initializing..."
           cd /home/github/actions-runner/_work/walkthrough/walkthrough
-          ./run "$INFRA_ENV" "$INFRA_STATE" init -var-file="$VAR_FILE" -upgrade=false
+          ./run "$INFRA_ENV" "$INFRA_STATE" init -var-file="$VAR_FILE"
 
       - name: Plan Terraform Infra
         run: |
@@ -89,3 +91,17 @@ jobs:
       #     echo "Getting ready.."
       #     ./run "$INFRA_ENV" "$INFRA_STATE" plan -destroy -out="$ENV_OUT_FILE"
       #     ./run "$INFRA_ENV" "$INFRA_STATE" apply "$ENV_OUT_FILE"
+
+      # Upload plugin cache directory as artifact for next runs
+      - name: Upload Terraform Plugin Cache
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plugin-cache
+          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
+
+      # Upload modules cache directory as artifact for next runs
+      - name: Upload Terraform Modules Cache
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-modules-cache
+          path: .terraform/modules
