@@ -38,6 +38,9 @@ jobs:
           path: .terraform/modules
         continue-on-error: true # Continue if not found
 
+      - name: Create Plugin Cache Directory
+        run: mkdir -p ${{ github.workspace }}/.terraform.d/plugin-cache
+
       - name: Set Github Branch & Terraform Infra
         run: |
           BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
@@ -92,17 +95,3 @@ jobs:
       #     echo "Getting ready.."
       #     ./run "$INFRA_ENV" "$INFRA_STATE" plan -destroy -out="$ENV_OUT_FILE"
       #     ./run "$INFRA_ENV" "$INFRA_STATE" apply "$ENV_OUT_FILE"
-
-      # Upload plugin cache directory as artifact for next runs
-      - name: Upload Terraform Plugin Cache
-        uses: actions/upload-artifact@v4
-        with:
-          name: terraform-plugin-cache
-          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
-
-      # Upload modules cache directory as artifact for next runs
-      - name: Upload Terraform Modules Cache
-        uses: actions/upload-artifact@v4
-        with:
-          name: terraform-modules-cache
-          path: .terraform/modules
