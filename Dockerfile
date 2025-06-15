@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 # Install dependencies
 RUN apt-get update && \
@@ -9,7 +9,7 @@ RUN apt-get update && \
 RUN useradd -m github && \
    echo "github ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-# Set working directory
+# Set working directory for all following commands
 WORKDIR /home/github/actions-runner
 
 # Download GitHub Actions runner
@@ -19,33 +19,31 @@ RUN curl -o actions-runner.tar.gz -L https://github.com/actions/runner/releases/
 
 # Install Terraform
 ARG TERRAFORM_VERSION="1.12.1"
-
-RUN set -eux && \
-   curl -LO "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" && \
+RUN curl -LO "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" && \
    unzip "terraform_${TERRAFORM_VERSION}_linux_amd64.zip" && \
    mv terraform /usr/local/bin/terraform && \
    chmod +x /usr/local/bin/terraform && \
    terraform -version && \
    rm "terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
 
-
 # Install Node.js (LTS version)
 ARG NODE_VERSION="22.16.0"
 RUN curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz | tar -xJvC /usr/local --strip-components=1
 
-# Set root password
-# WARNING: Hardcoding passwords directly in a Dockerfile is highly insecure
-# and strongly discouraged for production environments or images that will be shared.
-# Anyone with access to the Dockerfile or the built image can easily retrieve this password.
-RUN echo "root:root" | chpasswd
+# Set environment variables
+ENV HOME=/home/github
+ENV TERRAFORM_CONFIG=$HOME/.terraform.d/terraform.rc
 
-# Give permissions to the new 'github' user for the working directory
-RUN chown -R github:github /home/github/actions-runner
+# Create plugin cache directory and config file as root
+RUN mkdir -p /home/github/.terraform.d/plugin-cache && \
+   echo "plugin_cache_dir = \"/home/github/.terraform.d/plugin-cache\"" > /home/github/.terraform.d/terraform.rc && \
+   chown -R github:github /home/github/.terraform.d
 
-# Copy entrypoint script
+# Copy and make entrypoint script executable
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /entrypoint.sh && chown github:github /entrypoint.sh
 
+# Switch to github user
 USER github
 
 ENTRYPOINT ["/entrypoint.sh"]

@@ -24,7 +24,7 @@ if [ $# -gt 0 ]; then
       -backend-config="key=$TF_ENV/$TF_STATE.tfstate"
    else
    # if target is not init - run other targets (plan, apply, destroy)
-      terraform   -chdir=./$TF_ENV/$TF_STATE $3 $4 $5 $6 $7
+      terraform   -chdir=./$TF_ENV/$TF_STATE $3 $4 $5 $6 $7 $8
    fi
 fi
 

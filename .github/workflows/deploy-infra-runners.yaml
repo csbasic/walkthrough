@@ -16,75 +16,65 @@ jobs:
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform.d/plugin-cache
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      - name: Check Terraform version
-        run: terraform version
+      - name: Create Plugin Cache Directory
+        run: mkdir -p ${{ github.workspace }}/.terraform.d/plugin-cache
 
-      - name: Debug Base Branch
+      - name: Set Github Branch & Terraform Infra
         run: |
+          BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+          INFRA_STATE=network
 
-          echo "GITHUB_BASE_REF: $GITHUB_BASE_REF"
-          echo "Pull Request Event: $EVENT_DATA"
-        env:
-          EVENT_DATA: ${{ toJson(github.event) }}
+          echo "Detected base branch: $BASE_BRANCH"
 
-      - name: Set Environment Based on Base Branch
+          case "$BASE_BRANCH" in
+            dev)
+              echo "INFRA_ENV=dev" >> $GITHUB_ENV
+              echo "VAR_FILE=../dev.tfvars" >> $GITHUB_ENV
+              echo "ENV_OUT_FILE=../dev-tfplan" >> $GITHUB_ENV
+              ;;
+            stage)
+              echo "INFRA_ENV=stage" >> $GITHUB_ENV
+              echo "VAR_FILE=../stage.tfvars" >> $GITHUB_ENV
+              echo "ENV_OUT_FILE=../stage-tfplan" >> $GITHUB_ENV
+              ;;
+            main)
+              echo "INFRA_ENV=prod" >> $GITHUB_ENV
+              echo "VAR_FILE=../prod.tfvars" >> $GITHUB_ENV
+              echo "ENV_OUT_FILE=../prod-tfplan" >> $GITHUB_ENV
+              ;;
+            *)
+              echo "Unsupported base branch: $BASE_BRANCH"
+              exit 1
+              ;;
+          esac
+
+          echo "INFRA_STATE=$INFRA_STATE" >> $GITHUB_ENV
+
+      - name: Initialize Terraform Config
         run: |
-          if [[ -z "$GITHUB_BASE_REF" ]]; then
-            echo "GITHUB_BASE_REF is empty. Make sure this workflow is triggered by a pull request."
-            exit 1
-          fi
-
-          echo "Pull Request Base Branch: $GITHUB_BASE_REF"
-          if [[ "$GITHUB_BASE_REF" == "dev" ]]; then
-            echo "This PR targets the 'dev' branch."
-            echo "ENV=development" >> $GITHUB_ENV
-          elif [[ "$GITHUB_BASE_REF" == "state" ]]; then
-            echo "This PR targets the 'stage' branch."
-            echo "ENV=stage" >> $GITHUB_ENV
-          elif [[ "$GITHUB_BASE_REF" == "main" ]]; then
-            echo "This PR targets the 'main' branch."
-            echo "ENV=production" >> $GITHUB_ENV
-          else
-            echo "This PR targets an unsupported branch."
-            exit 1
-          fi
-
-      - name: Run Environment-Specific Steps
-        run: |
-          if [[ "${ENV}" == "dev" ]]; then
-            echo "Running development tasks..."
-          elif [[ "${ENV}" == "staging" ]]; then
-            echo "Running stage tasks..."
-          elif [[ "${ENV}" == "prod" ]]; then
-            echo "Running production tasks..."
-          fi
-
-      - name: Setup Terraform Infrastructure (Development Only)
-        if: env.ENV == 'dev'
-        run: |
-          echo "Setting up infrastructure for development - network state..."
+          echo "Initializing..."
           cd /home/github/actions-runner/_work/walkthrough/walkthrough
-          ./run dev network init -var-file=../dev.tfvars
-          ./run dev network plan -var-file=../dev.tfvars -out=../tfplan
+          ./run "$INFRA_ENV" "$INFRA_STATE" init -var-file="$VAR_FILE"
 
-        # ./run dev network apply -auto-approve ../tfplan
-        # echo "Setting up infrastructure for development - compute state..."
-        # cd /home/ubuntu/actions-runner/marketup/marketup-ops/marketup-ops/terraform
-        # ./run dev compute init -var-file=../dev.tfvars
-        # ./run dev compute plan -var-file=../dev.tfvars -out=tfplan
-        # ./run dev compute apply -var-file=../dev.tfvars -auto-approve tfplan
+      - name: Plan Terraform Infra
+        run: |
+          echo "Planning..."
+          ./run "$INFRA_ENV" "$INFRA_STATE" plan -var-file="$VAR_FILE" -out="$ENV_OUT_FILE"
 
-        # - name: Destroy Terraform Infrastructure (Development Only)
-        #   if: env.ENV == 'dev'
-        #   run: |
-        #     echo "Destroying infrastructure for development - network state..."
-        #     cd /home/ubuntu/actions-runner/marketup/marketup-ops/marketup-ops/terraform
-        #     ./run dev network init -var-file=../dev.tfvars
-        #     ./run dev network destroy -var-file=../dev.tfvars -auto-approve
-        env:
-          ENV: dev
+      # - name: Apply Terraform Infra
+      #   run: |
+      #     echo "Setting up infra..."
+
+      #     ./run "$INFRA_ENV" "$INFRA_STATE" apply "$ENV_OUT_FILE"
+
+      # - name: Terraform Destroy & Apply
+      #   run: |
+      #     echo "Getting ready.."
+      #     ./run "$INFRA_ENV" "$INFRA_STATE" plan -destroy -out="$ENV_OUT_FILE"
+      #     ./run "$INFRA_ENV" "$INFRA_STATE" apply "$ENV_OUT_FILE"
